@@ -27,7 +27,7 @@ const App = () => {
           <p className="sub-text">
             Each unique. Each beautiful. Discover your NFT today.
           </p>
-          {account === "" ? (
+          {!account ? (
             renderNotConnectedContainer()
           ) : (
             <button
