@@ -1,4 +1,6 @@
+import { ethers, providers } from "ethers";
 import { useCallback, useEffect, useState } from "react";
+import myEpicNft from "../abi/MyEpicNft.json";
 
 const getEthereumObj = () => {
   const { ethereum } = window;
@@ -14,12 +16,19 @@ const getEthereumObj = () => {
 
 export const useWeb3 = () => {
   const [ethereum, setEthereum] = useState<any>();
-  const [account, setAccount] = useState("");
+  const [provider, setProvider] = useState<providers.Web3Provider>();
+  const [account, setAccount] = useState();
 
   useEffect(() => {
     const newEthereum = getEthereumObj();
     if (newEthereum) {
       setEthereum(newEthereum);
+      try {
+        const newProvider = new ethers.providers.Web3Provider(newEthereum);
+        setProvider(newProvider);
+      } catch (err: any) {
+        console.error(err);
+      }
     }
   }, []);
 
@@ -50,5 +59,41 @@ export const useWeb3 = () => {
     setAccount(accounts[0]);
   }, [ethereum]);
 
-  return { account, connect };
+  return { account, provider, connect };
+};
+
+export const useContract = (provider?: providers.Web3Provider) => {
+  const [contract, setContract] = useState<ethers.Contract>();
+  const CONTRACT_ADDRESS = "0xe3D2C057938B8f2b72810B3E5F889f7476E3c4cA";
+  useEffect(() => {
+    if (provider) {
+      const signer = provider.getSigner();
+      const connectedContract = new ethers.Contract(
+        CONTRACT_ADDRESS,
+        myEpicNft.abi,
+        signer
+      );
+      setContract(connectedContract);
+    }
+  }, [provider]);
+
+  const mintNft = useCallback(async () => {
+    if (contract) {
+      try {
+        console.log("Going to pop wallet now to pay gas...");
+        const nftTxn = await contract.makeAnEpicNFT();
+
+        console.log("Mining...please wait.");
+        await nftTxn.wait();
+
+        console.log(
+          `Mined, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`
+        );
+      } catch (err: any) {
+        console.error(err);
+      }
+    }
+  }, [provider, contract]);
+
+  return { mintNft };
 };

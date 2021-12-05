@@ -1,7 +1,7 @@
 import "./App.css";
 import twitterLogo from "./assets/twitter-logo.svg";
 import React, { useEffect } from "react";
-import { useWeb3 } from "./hooks/useWeb3";
+import { useContract, useWeb3 } from "./hooks/useWeb3";
 
 // Constants
 const TWITTER_HANDLE = "_buildspace";
@@ -10,7 +10,8 @@ const OPENSEA_LINK = "";
 const TOTAL_MINT_COUNT = 50;
 
 const App = () => {
-  const { account, connect } = useWeb3();
+  const { account, connect, provider } = useWeb3();
+  const { mintNft } = useContract(provider);
   // Render Methods
   const renderNotConnectedContainer = () => (
     <button className="cta-button connect-wallet-button" onClick={connect}>
@@ -29,7 +30,10 @@ const App = () => {
           {account === "" ? (
             renderNotConnectedContainer()
           ) : (
-            <button className="cta-button connect-wallet-button">
+            <button
+              className="cta-button connect-wallet-button"
+              onClick={mintNft}
+            >
               Mint NFT
             </button>
           )}
