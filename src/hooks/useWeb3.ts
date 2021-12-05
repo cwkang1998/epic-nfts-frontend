@@ -64,7 +64,8 @@ export const useWeb3 = () => {
 
 export const useContract = (provider?: providers.Web3Provider) => {
   const [contract, setContract] = useState<ethers.Contract>();
-  const CONTRACT_ADDRESS = "0xe3D2C057938B8f2b72810B3E5F889f7476E3c4cA";
+  const CONTRACT_ADDRESS = "0xc2487A48f81C585006F849CFDB7d92049900b0fe";
+
   useEffect(() => {
     if (provider) {
       const signer = provider.getSigner();
@@ -76,6 +77,21 @@ export const useContract = (provider?: providers.Web3Provider) => {
       setContract(connectedContract);
     }
   }, [provider]);
+
+  useEffect(() => {
+    const callback = (from: string, tokenId: any) => {
+      console.log(from, tokenId.toNumber());
+      alert(
+        `Hey there! We've minted your NFT. It may be blank right now. It can take a max of 10 min to to show up on OpenSea. Here's the link: <https://testnets.opensea.io/assets/${CONTRACT_ADDRESS}/${tokenId.toNumber()}>`
+      );
+    };
+    if (contract) {
+      contract.on("NewEpicNFTMinted", callback);
+    }
+    return () => {
+      contract?.off("NewEpicNFTMinted", callback);
+    };
+  }, [contract]);
 
   const mintNft = useCallback(async () => {
     if (contract) {
