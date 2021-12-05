@@ -20,16 +20,25 @@ export const useWeb3 = () => {
   const [account, setAccount] = useState();
 
   useEffect(() => {
-    const newEthereum = getEthereumObj();
-    if (newEthereum) {
-      setEthereum(newEthereum);
-      try {
-        const newProvider = new ethers.providers.Web3Provider(newEthereum);
-        setProvider(newProvider);
-      } catch (err: any) {
-        console.error(err);
+    const fn = async () => {
+      const newEthereum = getEthereumObj();
+      if (newEthereum) {
+        setEthereum(newEthereum);
+        const chainId = await newEthereum.request({ method: "eth_chainId" });
+        const rinkebyChainId = "0x4";
+        if (chainId !== rinkebyChainId) {
+          alert("You are not connected to the Rinkeby Test Network!");
+        }
+
+        try {
+          const newProvider = new ethers.providers.Web3Provider(newEthereum);
+          setProvider(newProvider);
+        } catch (err: any) {
+          console.error(err);
+        }
       }
-    }
+    };
+    fn();
   }, []);
 
   useEffect(() => {
