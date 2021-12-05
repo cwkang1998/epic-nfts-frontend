@@ -118,7 +118,7 @@ export const useContract = (provider?: providers.Web3Provider) => {
         console.error(err);
       }
     }
-  }, [provider, contract]);
+  }, [contract]);
 
   return { mintNft };
 };
